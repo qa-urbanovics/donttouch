@@ -1,0 +1,39 @@
+# Flutter
+.dart_tool/
+.packages
+build/
+*.iml
+.idea/
+.vscode/
+*.lock
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# Android
+android/.gradle/
+android/local.properties
+android/key.properties
+
+# Windows
+windows/flutter/ephemeral/
+
+# Generated plugin registrants
+**/generated_plugin_registrant.*
+**/generated_plugins.cmake
+
+# Misc
+.DS_Store
+*.swp
+*.png
+!ios/**/*.png
+!android/**/*.png
+!web/**/*.png
+!assets/**
+.playwright-mcp/
