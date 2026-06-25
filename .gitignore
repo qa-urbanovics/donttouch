@@ -31,9 +31,5 @@ windows/flutter/ephemeral/
 # Misc
 .DS_Store
 *.swp
-*.png
-!ios/**/*.png
-!android/**/*.png
-!web/**/*.png
-!assets/**
+screenshots/dev/
 .playwright-mcp/
