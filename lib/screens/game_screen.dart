@@ -203,11 +203,7 @@ class _GameScreenState extends State<GameScreen>
     for (final event in events) {
       switch (event) {
         case GameEvent.levelUp:
-          _flashOpacity = 0.5;
-          _flashColor = AppColors.accent;
-          _showFeedback('LEVEL ${_engine.level}', AppColors.accent);
-          HapticService.medium();
-          widget.audioService.play(GameSound.levelUp);
+          // Level ups now triggered by score in _onTileTap
           break;
         case GameEvent.miss:
           _shakeIntensity = 3;
@@ -266,6 +262,14 @@ class _GameScreenState extends State<GameScreen>
         _popText = _engine.combo > 1 ? '+$gained  x${_engine.combo}' : '+$gained';
         _popOpacity = 1.0;
         _popY = 0;
+        // Check for level up triggered by score
+        if (_engine.hasPendingLevelUp) {
+          _flashOpacity = 0.5;
+          _flashColor = AppColors.accent;
+          _showFeedback('LEVEL ${_engine.level}', AppColors.accent);
+          HapticService.medium();
+          widget.audioService.play(GameSound.levelUp);
+        }
         break;
       case 'wrong':
         HapticService.error();
@@ -522,34 +526,6 @@ class _GameScreenState extends State<GameScreen>
                 ),
               ),
 
-            // Top-center controls: mute + pause
-            if (_gameStarted && !_engine.isGameOver && !_engine.isDying && !_isPaused)
-              Positioned(
-                top: r.sp(14),
-                left: 0,
-                right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _MiniButton(
-                      icon: widget.audioService.isMuted
-                          ? Icons.volume_off
-                          : Icons.volume_up,
-                      size: r.sp(18),
-                      onTap: () {
-                        widget.audioService.toggleMute();
-                        setState(() {});
-                      },
-                    ),
-                    SizedBox(width: r.sp(16)),
-                    _MiniButton(
-                      icon: Icons.pause,
-                      size: r.sp(18),
-                      onTap: _pause,
-                    ),
-                  ],
-                ),
-              ),
           ],
         ),
       ),
@@ -585,34 +561,63 @@ class _GameScreenState extends State<GameScreen>
             ],
           ),
 
-          // Combo badge
-          if (_engine.combo > 1)
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.symmetric(
-                horizontal: r.sp(12),
-                vertical: r.sp(5),
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.accent.withOpacity(0.25),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.accent, width: 1.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.accent.withOpacity(0.3),
-                    blurRadius: 12,
+          // Center: combo badge + controls
+          Column(
+            children: [
+              // Combo badge
+              if (_engine.combo > 1)
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: EdgeInsets.only(bottom: r.sp(4)),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: r.sp(12),
+                    vertical: r.sp(3),
                   ),
-                ],
-              ),
-              child: Text(
-                'x${_engine.combo}',
-                style: TextStyle(
-                  color: AppColors.accent,
-                  fontSize: r.sp(18),
-                  fontWeight: FontWeight.w800,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.accent, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.accent.withOpacity(0.3),
+                        blurRadius: 12,
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'x${_engine.combo}',
+                    style: TextStyle(
+                      color: AppColors.accent,
+                      fontSize: r.sp(16),
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              // Mute + Pause buttons
+              if (_gameStarted && !_engine.isGameOver && !_engine.isDying)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _HudIconButton(
+                      icon: widget.audioService.isMuted
+                          ? Icons.volume_off_rounded
+                          : Icons.volume_up_rounded,
+                      size: r.sp(16),
+                      onTap: () {
+                        widget.audioService.toggleMute();
+                        setState(() {});
+                      },
+                    ),
+                    SizedBox(width: r.sp(12)),
+                    _HudIconButton(
+                      icon: Icons.pause_rounded,
+                      size: r.sp(16),
+                      onTap: _pause,
+                    ),
+                  ],
+                ),
+            ],
+          ),
 
           // Level
           Column(
@@ -676,12 +681,12 @@ class _GameScreenState extends State<GameScreen>
   }
 }
 
-class _MiniButton extends StatelessWidget {
+class _HudIconButton extends StatelessWidget {
   final IconData icon;
   final double size;
   final VoidCallback onTap;
 
-  const _MiniButton({
+  const _HudIconButton({
     required this.icon,
     required this.size,
     required this.onTap,
@@ -691,11 +696,17 @@ class _MiniButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: const EdgeInsets.all(6),
+        width: size * 2.2,
+        height: size * 2.2,
         decoration: BoxDecoration(
-          color: AppColors.grey.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(8),
+          color: AppColors.grey.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(size * 0.5),
+          border: Border.all(
+            color: AppColors.grey.withOpacity(0.3),
+            width: 1,
+          ),
         ),
         child: Icon(icon, color: AppColors.textSecondary, size: size),
       ),

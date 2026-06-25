@@ -18,10 +18,15 @@ class GameEngine {
   static const double minSpawnInterval = 0.2;
   static const double baseTileLifetime = 2.5;
   static const double minTileLifetime = 0.6;
-  static const double speedIncreaseInterval = 5.0;
   static const double speedMultiplierStep = 0.12;
   static const double slowMoDuration = 2.5;
   static const double slowMoFactor = 0.4;
+
+  // Score thresholds for each level (level 2 starts at index 0)
+  static const List<int> _levelThresholds = [
+    5, 12, 22, 35, 52, 73, 100, 132, 170, 215,
+    268, 330, 400, 480, 570, 672, 786, 914, 1058,
+  ];
 
   final Random _random = Random();
   final List<GameTile> tiles = [];
@@ -47,7 +52,24 @@ class GameEngine {
 
   GameEngine({required this.gridCols, required this.gridRows});
 
-  int get level => (elapsed / speedIncreaseInterval).floor() + 1;
+  int get level {
+    for (int i = _levelThresholds.length - 1; i >= 0; i--) {
+      if (score >= _levelThresholds[i]) return i + 2;
+    }
+    return 1;
+  }
+
+  int get _scoreForNextLevel {
+    final lvl = level;
+    if (lvl - 1 >= _levelThresholds.length) return score;
+    return _levelThresholds[lvl - 1];
+  }
+
+  int get _scoreForCurrentLevel {
+    final lvl = level;
+    if (lvl <= 1) return 0;
+    return _levelThresholds[lvl - 2];
+  }
 
   double get speedMultiplier => 1.0 + (level - 1) * speedMultiplierStep;
 
@@ -57,8 +79,12 @@ class GameEngine {
   double get currentTileLifetime =>
       (baseTileLifetime / speedMultiplier).clamp(minTileLifetime, baseTileLifetime);
 
-  double get levelProgress =>
-      ((elapsed % speedIncreaseInterval) / speedIncreaseInterval).clamp(0.0, 1.0);
+  double get levelProgress {
+    final current = _scoreForCurrentLevel;
+    final next = _scoreForNextLevel;
+    if (next <= current) return 1.0;
+    return ((score - current) / (next - current)).clamp(0.0, 1.0);
+  }
 
   double get _timeScale => isSlowMo ? slowMoFactor : 1.0;
 
@@ -98,13 +124,8 @@ class GameEngine {
     final events = <GameEvent>[];
     final scaledDt = dt * _timeScale;
 
-    final prevLevel = level;
     elapsed += scaledDt;
     _timeSinceLastSpawn += scaledDt;
-
-    if (level > prevLevel) {
-      events.add(GameEvent.levelUp);
-    }
 
     // Slow-mo countdown
     if (_slowMoRemaining > 0) {
@@ -203,6 +224,16 @@ class GameEngine {
     }
   }
 
+  // Set by tapTile when a level up happens
+  bool _pendingLevelUp = false;
+  bool get hasPendingLevelUp {
+    if (_pendingLevelUp) {
+      _pendingLevelUp = false;
+      return true;
+    }
+    return false;
+  }
+
   /// Returns: 'correct', 'wrong', 'neutral', 'slowmo'
   String tapTile(int tileId) {
     final idx = tiles.indexWhere((t) => t.id == tileId);
@@ -216,9 +247,13 @@ class GameEngine {
 
     switch (tile.type) {
       case TileType.green:
+        final prevLevel = level;
         combo++;
         if (combo > maxCombo) maxCombo = combo;
         score += 1 * combo;
+        if (level > prevLevel) {
+          _pendingLevelUp = true;
+        }
         return 'correct';
       case TileType.red:
         isDying = true;
