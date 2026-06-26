@@ -1,30 +1,66 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Copyright (c) 2026 Aleksejs Urbanovics. All rights reserved.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:dont_touch_red/main.dart';
+import 'package:dont_touch_red/game/game_engine.dart';
+import 'package:dont_touch_red/game/tile.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('GameEngine', () {
+    late GameEngine engine;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    setUp(() {
+      engine = GameEngine(gridCols: 4, gridRows: 5);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('initial state is correct', () {
+      expect(engine.score, 0);
+      expect(engine.level, 1);
+      expect(engine.combo, 0);
+      expect(engine.isGameOver, false);
+      expect(engine.tiles, isEmpty);
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('tapping green tile increases score', () {
+      final tile = GameTile(id: 0, row: 0, col: 0, type: TileType.green, lifetime: 2.5);
+      engine.tiles.add(tile);
+      final result = engine.tapTile(0);
+      expect(result, 'correct');
+      expect(engine.score, greaterThan(0));
+    });
+
+    test('tapping red tile triggers death', () {
+      final tile = GameTile(id: 0, row: 0, col: 0, type: TileType.red, lifetime: 2.5);
+      engine.tiles.add(tile);
+      final result = engine.tapTile(0);
+      expect(result, 'wrong');
+      expect(engine.isDying, true);
+    });
+
+    test('tapping yellow tile activates slow-mo', () {
+      final tile = GameTile(id: 0, row: 0, col: 0, type: TileType.yellow, lifetime: 2.5);
+      engine.tiles.add(tile);
+      final result = engine.tapTile(0);
+      expect(result, 'slowmo');
+      expect(engine.isSlowMo, true);
+    });
+
+    test('combo increases on consecutive green taps', () {
+      for (int i = 0; i < 3; i++) {
+        engine.tiles.add(GameTile(id: i, row: 0, col: i, type: TileType.green, lifetime: 2.5));
+        engine.tapTile(i);
+      }
+      expect(engine.combo, 3);
+      expect(engine.maxCombo, 3);
+    });
+
+    test('reset clears all state', () {
+      engine.tiles.add(GameTile(id: 0, row: 0, col: 0, type: TileType.green, lifetime: 2.5));
+      engine.tapTile(0);
+      engine.reset();
+      expect(engine.score, 0);
+      expect(engine.combo, 0);
+      expect(engine.tiles, isEmpty);
+      expect(engine.isGameOver, false);
+    });
   });
 }

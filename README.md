@@ -63,13 +63,12 @@ See `PUBLISH_IOS.md` for full instructions.
 
 ## Roadmap
 
-- [ ] Sound effects (tap, game over, level up)
+- [x] Sound effects (tap, game over, level up)
+- [x] Share score as image
 - [ ] Game Center leaderboard
 - [ ] Daily Challenge mode
-- [ ] Share score as image
 - [ ] Cosmetic skins/themes
-- [ ] Rewarded ads for continue
 
 ## License
 
-Proprietary. All rights reserved.
+Copyright (c) 2026 Aleksejs Urbanovics. All rights reserved.

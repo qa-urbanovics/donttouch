@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Aleksejs Urbanovics. All rights reserved.
+
 import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';

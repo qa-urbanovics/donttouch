@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Aleksejs Urbanovics. All rights reserved.
+
 enum TileType { green, red, yellow }
 
 class GameTile {

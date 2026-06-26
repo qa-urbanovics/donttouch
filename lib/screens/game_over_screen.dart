@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Aleksejs Urbanovics. All rights reserved.
+
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -133,8 +135,12 @@ class _GameOverScreenState extends State<GameOverScreen>
         [XFile(file.path)],
         text: "I scored ${widget.score} points in Don't Touch Red! Can you beat me?",
       );
-    } catch (_) {
-      // Share not available on this platform
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Share not available: $e')),
+        );
+      }
     }
   }
 
