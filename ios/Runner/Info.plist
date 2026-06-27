@@ -59,6 +59,8 @@
 	</array>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright (c) 2026 Aleksejs Urbanovics. All rights reserved.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
