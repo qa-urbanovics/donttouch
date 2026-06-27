@@ -44,6 +44,7 @@ class _GameOverScreenState extends State<GameOverScreen>
   late Animation<int> _scoreCountUp;
 
   final GlobalKey _shareKey = GlobalKey();
+  final GlobalKey _shareButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -131,9 +132,15 @@ class _GameOverScreenState extends State<GameOverScreen>
       final file = File('${dir.path}/dont_touch_red_score.png');
       await file.writeAsBytes(byteData.buffer.asUint8List());
 
+      final box = _shareButtonKey.currentContext?.findRenderObject() as RenderBox?;
+      final origin = box != null
+          ? box.localToGlobal(Offset.zero) & box.size
+          : Rect.zero;
+
       await Share.shareXFiles(
         [XFile(file.path)],
         text: "I scored ${widget.score} points in Don't Touch Red! Can you beat me?",
+        sharePositionOrigin: origin,
       );
     } catch (e) {
       if (mounted) {
@@ -340,6 +347,7 @@ class _GameOverScreenState extends State<GameOverScreen>
                           child: SizedBox(
                             height: r.sp(48),
                             child: TextButton.icon(
+                              key: _shareButtonKey,
                               onPressed: _shareScore,
                               icon: Icon(Icons.share, size: r.sp(16)),
                               label: Text(
