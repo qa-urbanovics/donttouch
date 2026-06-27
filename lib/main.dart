@@ -49,7 +49,7 @@ class DontTouchRedApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Don't Touch Red",
+      title: "Red Trap",
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       home: MenuScreen(

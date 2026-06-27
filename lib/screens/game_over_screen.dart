@@ -129,7 +129,7 @@ class _GameOverScreenState extends State<GameOverScreen>
       if (byteData == null) return;
 
       final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/dont_touch_red_score.png');
+      final file = File('${dir.path}/red_trap_score.png');
       await file.writeAsBytes(byteData.buffer.asUint8List());
 
       final box = _shareButtonKey.currentContext?.findRenderObject() as RenderBox?;
@@ -139,7 +139,7 @@ class _GameOverScreenState extends State<GameOverScreen>
 
       await Share.shareXFiles(
         [XFile(file.path)],
-        text: "I scored ${widget.score} points in Don't Touch Red! Can you beat me?",
+        text: "I scored ${widget.score} points in Red Trap! Can you beat me?",
         sharePositionOrigin: origin,
       );
     } catch (e) {

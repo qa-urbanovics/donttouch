@@ -94,26 +94,6 @@ class _MenuScreenState extends State<MenuScreen>
                   const Spacer(flex: 2),
 
                   // Title
-                  Text(
-                    "DON'T",
-                    style: TextStyle(
-                      fontSize: r.sp(34),
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.textSecondary,
-                      letterSpacing: -1,
-                    ),
-                  ),
-                  SizedBox(height: r.sp(2)),
-                  Text(
-                    'TOUCH',
-                    style: TextStyle(
-                      fontSize: r.sp(50),
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.textPrimary,
-                      letterSpacing: -2,
-                    ),
-                  ),
-                  SizedBox(height: r.sp(2)),
                   ShaderMask(
                     shaderCallback: (bounds) => const LinearGradient(
                       colors: [AppColors.red, Color(0xFFFF6B6B)],
@@ -126,6 +106,16 @@ class _MenuScreenState extends State<MenuScreen>
                         color: Colors.white,
                         letterSpacing: -2,
                       ),
+                    ),
+                  ),
+                  SizedBox(height: r.sp(2)),
+                  Text(
+                    'TRAP',
+                    style: TextStyle(
+                      fontSize: r.sp(50),
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textPrimary,
+                      letterSpacing: -2,
                     ),
                   ),
 
