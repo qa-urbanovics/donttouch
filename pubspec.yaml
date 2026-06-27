@@ -1,7 +1,7 @@
 name: dont_touch_red
-description: "Don't Touch Red - Tap only green tiles!"
+description: "Red Trap - Tap only green tiles!"
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.7.0
