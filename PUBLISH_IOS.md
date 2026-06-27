@@ -42,7 +42,7 @@ brew install cocoapods
 ### Шаг 2.1 — Клонировать репозиторий
 ```bash
 cd ~/Projects
-git clone git@github.com:qa-urbanovics/donttouch.git DontTouchRed
+git clone https://github.com/qa-urbanovics/donttouch.git DontTouchRed
 cd DontTouchRed
 ```
 
@@ -355,7 +355,7 @@ This is a simple reflex game. Tap green tiles to score points, avoid red tiles (
 
 ```bash
 # 1. Клонировать
-git clone git@github.com:qa-urbanovics/donttouch.git DontTouchRed && cd DontTouchRed
+git clone https://github.com/qa-urbanovics/donttouch.git DontTouchRed && cd DontTouchRed
 
 # 2. Зависимости
 flutter pub get && cd ios && pod install && cd ..
