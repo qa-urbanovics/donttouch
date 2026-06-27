@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Aleksejs Urbanovics. All rights reserved.
 
-import 'dart:typed_data';
+import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'sound_generator.dart';
 
@@ -19,7 +20,7 @@ class AudioService {
   static const _keyMuted = 'sound_muted';
 
   late SharedPreferences _prefs;
-  final Map<GameSound, Uint8List> _sounds = {};
+  final Map<GameSound, String> _soundPaths = {};
   final List<AudioPlayer> _pool = [];
   int _poolIndex = 0;
 
@@ -30,14 +31,31 @@ class AudioService {
     _prefs = prefs;
     _muted = _prefs.getBool(_keyMuted) ?? false;
 
-    // Pre-generate all sounds
-    _sounds[GameSound.tapCorrect] = SoundGenerator.tapCorrect();
-    _sounds[GameSound.tapWrong] = SoundGenerator.tapWrong();
-    _sounds[GameSound.countdownBeep] = SoundGenerator.countdownBeep();
-    _sounds[GameSound.countdownGo] = SoundGenerator.countdownGo();
-    _sounds[GameSound.levelUp] = SoundGenerator.levelUp();
-    _sounds[GameSound.slowMo] = SoundGenerator.slowMo();
-    _sounds[GameSound.comboLost] = SoundGenerator.comboLost();
+    // Save generated WAV sounds to temp files (BytesSource unreliable on iOS)
+    final dir = await getTemporaryDirectory();
+    final soundDir = Directory('${dir.path}/game_sounds');
+    if (!soundDir.existsSync()) {
+      soundDir.createSync();
+    }
+
+    final generators = <GameSound, List<int> Function()>{
+      GameSound.tapCorrect: SoundGenerator.tapCorrect,
+      GameSound.tapWrong: SoundGenerator.tapWrong,
+      GameSound.countdownBeep: SoundGenerator.countdownBeep,
+      GameSound.countdownGo: SoundGenerator.countdownGo,
+      GameSound.levelUp: SoundGenerator.levelUp,
+      GameSound.slowMo: SoundGenerator.slowMo,
+      GameSound.comboLost: SoundGenerator.comboLost,
+    };
+
+    for (final entry in generators.entries) {
+      final path = '${soundDir.path}/${entry.key.name}.wav';
+      final file = File(path);
+      if (!file.existsSync()) {
+        file.writeAsBytesSync(entry.value());
+      }
+      _soundPaths[entry.key] = path;
+    }
 
     // Create audio player pool (allow overlapping sounds)
     for (int i = 0; i < 4; i++) {
@@ -60,14 +78,14 @@ class AudioService {
   void play(GameSound sound) {
     if (_muted) return;
 
-    final data = _sounds[sound];
-    if (data == null) return;
+    final path = _soundPaths[sound];
+    if (path == null) return;
 
     final player = _pool[_poolIndex % _pool.length];
     _poolIndex++;
 
     player.stop();
-    player.play(BytesSource(data));
+    player.play(DeviceFileSource(path));
   }
 
   Future<void> dispose() async {
